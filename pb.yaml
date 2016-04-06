@@ -3,6 +3,8 @@
   remote_user: root
   sudo: yes
   gather_facts: no
+  vars:
+    - include: group_vars/all
   roles:
     - db
 
