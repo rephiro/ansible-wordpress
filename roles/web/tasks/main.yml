@@ -1,0 +1,2 @@
+- name: dummy task
+  command: touch /tmp/webserver

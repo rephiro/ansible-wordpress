@@ -1,0 +1,16 @@
+- name: create db server
+  hosts: dbservers
+  remote_user: root
+  sudo: yes
+  gather_facts: no
+  roles:
+    - db
+
+- name: create web server
+  hosts: webservers
+  remote_user: root
+  sudo: yes
+  gather_facts: no
+  roles:
+    - web
+

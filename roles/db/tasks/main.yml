@@ -1,0 +1,45 @@
+- name: set selinux disable
+  selinux: state=disabled
+- name: install packages
+  yum: name={{ item }} state=latest
+  with_items:
+    - httpd
+    - mariadb-server
+    - php
+    - php-mysql
+    - MySQL-python
+- name: download wordpress package
+  get_url: url=http://ja.wordpress.org/latest-ja.tar.gz dest=/tmp/wp.tar.gz
+- name: deploy wordpress package
+  command: tar zxvpf /tmp/wp.tar.gz chdir=/var/www/html
+- name: chown and chmod wordpress package
+  file: path=/var/www/html/wordpress state=directory recurse=yes owner=apache group=apache
+- name: copy wordpress setting file
+  command: \cp -fp wp-config-sample.php wp-config.php chdir=/var/www/html/wordpress
+- name: configure wordpress settings
+  replace: dest=/var/www/html/wordpress/wp-config.php regexp='{{ item.regexp }}' replace='{{ item.replace }}'
+  with_items:
+  - regexp: 'database_name_here'
+    replace: 'wordpress'
+  - regexp: 'username_here'
+    replace: 'wordpress'
+  - regexp: 'password_here'
+    replace: 'wordpress'
+- name: configure apache settings
+  replace: dest=/etc/httpd/conf/httpd.conf regexp='{{ item.regexp }}' replace='{{ item.replace }}'
+  with_items:
+  - regexp: '"/var/www/html"'
+    replace: '"/var/www/html/wordpress"'
+  - regexp: 'AllowOverride None'
+    replace: 'AllowOverride All'
+- name: disable firewalld
+  service: name=firewalld state=stopped enabled=no
+- name: enable httpd
+  service: name=httpd state=restarted enabled=yes
+- name: enable mariadb
+  service: name=mariadb state=restarted enabled=yes
+- name: create database
+  mysql_db: name=wordpress state=present
+- name: grant database
+  mysql_user: name=wordpress password="wordpress" priv=wordpress.*:ALL
+
