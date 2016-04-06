@@ -1,13 +1,2 @@
-- include_vars: group_vars/db
-- name: install packages
-  yum: name={{ item }} state=latest
-  with_items:
-    - mariadb-server
-    - MySQL-python
-- name: enable mariadb
-  service: name=mariadb state=restarted enabled=yes
-- name: create database
-  mysql_db: name={{ wordpress.db_name }} state=present
-- name: grant database
-  mysql_user: name={{ wordpress.db_user }} password={{ wordpress.db_password }} host=% priv={{ wordpress.db_name }}.*:ALL
-
+- include: mariadb.yaml
+- include: wordpress-db.yaml

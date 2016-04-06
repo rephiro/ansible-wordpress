@@ -1,0 +1,30 @@
+- include_vars: group_vars/db
+- name: install php packages
+  yum: name={{ item }} state=latest
+  with_items:
+    - php
+    - php-mysql
+- name: download wordpress package
+  get_url: url=http://ja.wordpress.org/latest-ja.tar.gz dest=/tmp/wp.tar.gz
+  notify: deploy wordpress package
+- name: check existing wordpress setting file
+  command: ls /var/www/html/wordpress/wp-config.php
+  register: wp_config_file
+  changed_when: false
+  always_run: yes
+- name: copy wordpress setting file
+  command: cp -np wp-config-sample.php wp-config.php chdir=/var/www/html/wordpress
+  when: wp_config_file.rc != 0
+- name: configure wordpress settings
+  replace: dest=/var/www/html/wordpress/wp-config.php regexp='{{ item.regexp }}' replace='{{ item.replace }}'
+  with_items:
+  - regexp: 'database_name_here'
+    replace: '{{ wordpress.db_name }}'
+  - regexp: 'username_here'
+    replace: '{{ wordpress.db_user }}'
+  - regexp: 'password_here'
+    replace: '{{ wordpress.db_password }}'
+  - regexp: 'localhost'
+    replace: '{{ wordpress.db_host }}'
+- name: chown wordpress package
+  file: path=/var/www/html/wordpress state=directory recurse=yes owner=apache group=apache

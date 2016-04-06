@@ -1,0 +1,2 @@
+- name: deploy wordpress package
+  command: tar zxvpf /tmp/wp.tar.gz chdir=/var/www/html
