@@ -1,1 +1,1 @@
-ansible-playbook pb.yaml -i hosts --private-key=default.pem
+ansible-playbook site.yaml -i hosts --private-key=default.pem

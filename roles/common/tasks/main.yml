@@ -1,0 +1,4 @@
+- name: set selinux disable
+  selinux: state=disabled
+- name: disable firewalld
+  service: name=firewalld state=stopped enabled=no

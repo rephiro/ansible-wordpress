@@ -1,6 +1,4 @@
 - include_vars: group_vars/db
-- name: set selinux disable
-  selinux: state=disabled
 - name: install packages
   yum: name={{ item }} state=latest
   with_items:
@@ -26,17 +24,6 @@
     replace: '{{ wordpress.db_password }}'
   - regexp: 'localhost'
     replace: '{{ wordpress.db_host }}'
-#- name: configure wordpress settings
-#  lineinfile: dest=/var/www/html/wordpress/wp-config.php regexp='{{ item.regexp }}' line='{{ item.replace }}'
-#  with_items:
-#  - regexp: "^define('DB_NAME', 'database_name_here');"
-#    replace: "define('DB_NAME', '{{ wordpress.db_name }}');"
-#  - regexp: "^define('DB_USER', 'username_here');"
-#    replace: "define('DB_USER', '{{ wordpress.db_user }}');"
-#  - regexp: "^define('DB_PASSWORD', 'password_here');"
-#    replace: "define('DB_PASSWORD', '{{ wordpress.db_password }}');"
-#  - regexp: "^define('DB_HOST', 'localhost');"
-#    replace: "define('DB_HOST', '{{ wordpress.db_host }}');"
 - name: configure apache settings
   replace: dest=/etc/httpd/conf/httpd.conf regexp='{{ item.regexp }}' replace='{{ item.replace }}'
   with_items:
@@ -44,7 +31,5 @@
     replace: '"/var/www/html/wordpress"'
   - regexp: 'AllowOverride None'
     replace: 'AllowOverride All'
-- name: disable firewalld
-  service: name=firewalld state=stopped enabled=no
 - name: enable httpd
   service: name=httpd state=restarted enabled=yes
